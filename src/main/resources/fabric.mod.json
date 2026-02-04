@@ -13,10 +13,11 @@
   "description": "${mod_description}",
   "icon": "${mod_logo}",
   "license": "${mod_license}",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
   },
   "mixins": [
+    "${mod_id}.mixins.json"
   ],
   "depends": {
     "minecraft": [${supported_minecraft_versions}]
