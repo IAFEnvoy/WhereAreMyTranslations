@@ -1,5 +1,6 @@
 package com.iafenvoy.wamt;
 
+import com.iafenvoy.wamt.config.WAMTConfig;
 import com.iafenvoy.wamt.util.CopyOnWriteHashMap;
 import com.iafenvoy.wamt.util.MapComparator;
 import org.apache.commons.io.FileUtils;
@@ -9,15 +10,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class KeyRecorder {
     public static final List<String> MOD_IDS = Platform.gatherAllModIds();
     private static final int SAVE_DELAY = 1000;
     //Map<MOD_ID, Map<LANGUAGE, List<KEY>>>
-    private static final Map<String, Map<String, Set<String>>> MISSING_KEYS = new CopyOnWriteHashMap<>();
+    private static final Map<String, Map<String, List<String>>> MISSING_KEYS = new CopyOnWriteHashMap<>();
     private static long LAST_MODIFY_TIME = 0;
     private static boolean MODIFIED = false;
 
@@ -34,26 +33,29 @@ public final class KeyRecorder {
     }
 
     private static void saveKey(String language, String key) {
-        MISSING_KEYS.computeIfAbsent(resolveModIds(key), s -> new CopyOnWriteHashMap<>()).computeIfAbsent(language, s -> new CopyOnWriteArraySet<>()).add(key);
-        WhereAreMyTranslations.LOGGER.debug("Missing translate key: {}", key);
+        List<String> set = MISSING_KEYS.computeIfAbsent(resolveModIds(key), s -> new CopyOnWriteHashMap<>()).computeIfAbsent(language, s -> new CopyOnWriteArrayList<>());
+        if (set.contains(key)) return;
+        set.add(key);
+        if (WAMTConfig.INSTANCE.logMissingKeys)
+            WhereAreMyTranslations.LOGGER.warn("Missing translate key {} for language {}", key, language);
         LAST_MODIFY_TIME = System.currentTimeMillis();
         MODIFIED = true;
     }
 
     private static String resolveModIds(String key) {
-        return MOD_IDS.stream().filter(key::contains).findAny().orElse(".");
+        return MOD_IDS.stream().filter(key::contains).findAny().orElse(".unknown");
     }
 
     private static String getSavePath(String modId, String language) {
-        return String.format("./config/%s/%s/%s.json", WhereAreMyTranslations.MOD_ID, modId, language);
+        return String.format("./config/%s/exports/%s/%s.json", WhereAreMyTranslations.MOD_ID, modId, language);
     }
 
     private static void runSaveTask() {
         if (MODIFIED && System.currentTimeMillis() - LAST_MODIFY_TIME >= SAVE_DELAY) {
             WhereAreMyTranslations.LOGGER.debug("Start saving file");
             MODIFIED = false;
-            for (Map.Entry<String, Map<String, Set<String>>> modId : MISSING_KEYS.entrySet())
-                for (Map.Entry<String, Set<String>> language : modId.getValue().entrySet()) {
+            for (Map.Entry<String, Map<String, List<String>>> modId : MISSING_KEYS.entrySet())
+                for (Map.Entry<String, List<String>> language : modId.getValue().entrySet()) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("{");
                     boolean first = true;

@@ -9,8 +9,7 @@ public class MapComparator {
         List<K> unchangedKeys = new LinkedList<>();
         for (Map.Entry<K, V> entry : originalMap.entrySet()) {
             K key = entry.getKey();
-            V originalValue = entry.getValue();
-            if (originalValue != null && originalValue.equals(modifiedMap.get(key))) unchangedKeys.add(key);
+            if (entry.getValue().equals(modifiedMap.get(key))) unchangedKeys.add(key);
         }
         return unchangedKeys;
     }
