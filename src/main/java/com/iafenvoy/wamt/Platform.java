@@ -4,13 +4,13 @@ package com.iafenvoy.wamt;
 /*import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
-*///?} else neoforge {
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforgespi.language.IModInfo;
-//?} else forge {
+*///?} else forge {
 /*import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
-*///?}
+*///?} else {
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforgespi.language.IModInfo;
+//?}
 
 import java.util.List;
 

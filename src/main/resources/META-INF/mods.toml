@@ -21,4 +21,4 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "${supported_minecraft_versions}"
+versionRange = "${minecraft_version_range_forge}"

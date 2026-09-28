@@ -92,10 +92,10 @@ tasks.named<ProcessResources>("processResources") {
         this["mod_repo_url"] = project.property("mod.repo_url") as String
         this["mod_license"] = project.property("mod.license") as String
         this["mod_logo"] = project.property("mod.logo") as String
-        this["supported_minecraft_versions"] = supportedMinecraftVersions.joinToString(",") { x -> "[${x}]" }
+        this["minecraft_version_range_neoforge"] = supportedMinecraftVersions.joinToString(",") { x -> "[${x}]" }
     }
 
-    filesMatching(listOf("fabric.mod.json", "META-INF/neoforge.mods.toml", "META-INF/mods.toml")) {
+    filesMatching(listOf("META-INF/neoforge.mods.toml")) {
         expand(props)
     }
 }
@@ -113,15 +113,11 @@ publishMods {
     changelog = provider { rootProject.file("CHANGELOG.md").readText() }
     modLoaders.add("neoforge")
 
-    modrinth {
-        projectId = property("publish.modrinth") as String
-        accessToken = env.MODRINTH_API_KEY.orNull()
-        minecraftVersions.addAll(supportedMinecraftVersions)
-    }
-
     curseforge {
         projectId = property("publish.curseforge") as String
         accessToken = env.CURSEFORGE_API_KEY.orNull()
         minecraftVersions.addAll(supportedMinecraftVersions)
+        clientRequired = true
+        serverRequired = true
     }
 }
